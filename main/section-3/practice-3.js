@@ -1,49 +1,25 @@
 'use strict';
 
-function find(collection, ch) {
-    for (let item of collection) {
-        if (item.key === ch) {
-            return item;
-        }
-    }
-
-    return null;
-}
-
 function summarize(collection) {
-    let result = [];
-    for (let item of collection) {
-        let obj = find(result, item)
-        if (obj) {
-            obj.count++;
-        } else {
-            result.push({key: item, count: 1});
+    let result =[];
+    collection.forEach((item) =>{
+        let finded = result.find((value) => value['key']== item)
+        if (finded){
+            finded.count++;
+        }else{
+            result.push({key:item,count:1})
         }
-    }
-    return result;
+    })
+    return result
 }
 
-function includes(collection, ch) {
-    for (let item of collection) {
-        if (item === ch) {
-            return true;
+function discount(collection, collectionCompare) {
+    collection.forEach((item)=>{
+        if(collectionCompare.includes(item['key'])){
+            item['count']=item['count']-Math.floor(item['count']/3);
         }
-    }
-
-    return false;
-}
-
-function discount(collection, promotionItems) {
-    let result = [];
-    for (let item of collection) {
-        let key = item.key;
-        let count = item.count;
-        if (includes(promotionItems, key)) {
-            count = count - Math.floor(count / 3);
-        }
-        result.push({key, count});
-    }
-    return result;
+    })
+    return collection
 }
 
 module.exports = function createUpdatedCollection(collectionA, objectB) {

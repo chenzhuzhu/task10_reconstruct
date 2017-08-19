@@ -1,77 +1,55 @@
 'use strict';
 
-function find(collection, ch) {
-    for (let item of collection) {
-        if (item.key === ch) {
-            return item;
-        }
+function pushKeyValue(collection,key,value){
+    while(value>0){
+        collection.push(key)
+        value--;
     }
+    return collection;
+}
 
-    return null;
+function delAndPush(collection,item,symbol){
+    let key = item.split(symbol)[0]
+    let value =parseInt(item.split(symbol)[1],10)
+    return pushKeyValue(collection,key,value)
+}
+
+function expandArray(collection){
+    let result=[]
+    collection.forEach((item)=>{
+        if(item.includes('-')) {
+            delAndPush(result, item,'-');
+        }else{
+            result.push(item)
+        }
+    })
+    return result
 }
 
 function summarize(collection) {
-    let result = [];
-    for (let item of collection) {
-        let obj = find(result, item)
-        if (obj) {
-            obj.count++;
-        } else {
-            result.push({key: item, count: 1});
+    let result =[];
+    collection.forEach((item) =>{
+        let finded = result.find((value) => value['key']== item)
+        if (finded){
+            finded.count++;
+        }else{
+            result.push({key:item,count:1})
         }
-    }
-    return result;
+    })
+    return result
 }
 
-function split(item) {
-    let array = item.split("-");
-    return {key: array[0], count: parseInt(array[1], 10)};
-}
-
-function push(result, key, count) {
-    for (var i = 0; i < count; i++) {
-        result.push(key);
-    }
-}
-
-function expand(collection) {
-    let result = [];
-    for (let item of collection) {
-        if (item.length === 1) {
-            result.push(item);
-        } else {
-            let {key, count} = split(item);
-            push(result, key, count);
+function discount(collection, collectionCompare) {
+    collection.forEach((item)=>{
+        if(collectionCompare.includes(item['key'])){
+            item['count']=item['count']-Math.floor(item['count']/3);
         }
-    }
-    return result;
-}
-
-function includes(collection, ch) {
-    for (let item of collection) {
-        if (item === ch) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-function discount(collection, promotionItems) {
-    let result = [];
-    for (let item of collection) {
-        let key = item.key;
-        let count = item.count;
-        if (includes(promotionItems, key)) {
-            count = count - Math.floor(count / 3);
-        }
-        result.push({key, count});
-    }
-    return result;
+    })
+    return collection;
 }
 
 module.exports = function createUpdatedCollection(collectionA, objectB) {
-    let expandedArray = expand(collectionA);
+    let expandedArray = expandArray(collectionA);
     let summarizedArray = summarize(expandedArray);
     return discount(summarizedArray, objectB.value);
 }
